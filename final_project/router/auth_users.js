@@ -19,8 +19,6 @@ const isValid = (username)=>{
 const authenticatedUser = (username,password)=>{
     
     let validusers = users.filter((user)=>{
-      console.log("stored username: " + user.username);
-      console.log("stored password: " + user.password);
       return (user.username === username && user.password === password)
     });
 
@@ -35,7 +33,7 @@ regd_users.post("/login", (req,res) => {
     if (!username || !password) {
         return res.status(404).json({message: "Error logging in"});
     }
-    console.log("users list before calling authenticatedUser: " + users);
+    
     if (authenticatedUser(username,password)) {
       let accessToken = jwt.sign({
         data: password
@@ -75,7 +73,7 @@ regd_users.delete("/auth/review/:isbn", (req, res) => {
     const username = req.body.username;
     const isbn = req.params.isbn;
     let book = books[isbn];
-    console.log("delete book reviews:" + JSON.stringify({book},null,2));
+
     if (book) {
       if (book["reviews"][username]) {
           delete book["reviews"][username];
