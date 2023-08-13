@@ -20,11 +20,8 @@ const authenticatedUser = (username,password)=>{
     let validusers = users.filter((user)=>{
       return (user.username === username && user.password === password)
     });
-    if(validusers.length > 0){
-      return true;
-    } else {
-      return false;
-    }
+
+    return validusers.length > 0;
   }
 
 //only registered users can login
@@ -54,13 +51,39 @@ regd_users.post("/login", (req,res) => {
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
   
+  const username = req.body.username;
   const isbn = req.params.isbn;
   let book = books[isbn];
 
   if (book) {
-    let review = req.body.review;
+
+    if (book.reviews[username].length > 0) {
+      book.reviews[username] = req.body.review;
+    } else {
+      let newReview = { username : req.body.review };
+      book.reviews.push(newReview);
+    }
+
+  } else {
+    return res.status(404).json({ message: "Book not found" });
   }
 
+});
+
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+    const username = req.body.username;
+    const isbn = req.params.isbn;
+    let book = books[isbn];
+
+    if (book) {
+      if (book.reviews[username].length > 0) {
+          delete book.reviews[username];
+      } else {
+        return res.status(404).json({ message: "User has no reviews for this book" });
+      }
+    } else {
+        return res.status(404).json({ message: "Book not found" });
+    }
 });
 
 module.exports.authenticated = regd_users;
